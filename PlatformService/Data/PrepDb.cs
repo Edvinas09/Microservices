@@ -27,8 +27,7 @@ namespace PlatformService.Data
                     new Platform() { Name = "DotNet", Publisher = "Microsoft", Cost = "Free" },
                     new Platform() { Name = "SQL Server Express", Publisher = "Microsoft", Cost = "Free" },
                     new Platform() { Name = "Kubernetes", Publisher = "Cloud Native Computing Foundation", Cost = "Free" },
-                    new Platform() { Name = "Docker", Publisher = "Docker Inc.", Cost = "Free" },
-                    new Platform() { Name = "RabbitMQ", Publisher = "Pivotal Software", Cost = "Free" }
+                    new Platform() { Name = "Docker", Publisher = "Docker Inc.", Cost = "Free" }
                 );
 
                 context.SaveChanges();
