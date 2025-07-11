@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PlatformService.Data;
 using PlatformService.Dtos;
 using PlatformService.Models;
+using PlatformService.SyncDataServices.Http;
 
 namespace PlatformService.Controllers
 {
@@ -12,14 +13,20 @@ namespace PlatformService.Controllers
     {
         private readonly IPlatformRepo _repository;
         private readonly IMapper _mapper;
+        private readonly ICommandDataClient _commandDataClient;
 
         // This controller will handle requests related to platforms.
         // It uses dependency injection to get the repository and mapper instances.
 
-        public PlatformsController(IPlatformRepo repo, IMapper mapper)
+        public PlatformsController(
+            IPlatformRepo repo,
+             IMapper mapper,
+             ICommandDataClient commandDataClient)
         {
             _repository = repo;
             _mapper = mapper;
+            _commandDataClient = commandDataClient;
+
         }
 
         [HttpGet]
@@ -42,13 +49,22 @@ namespace PlatformService.Controllers
         }
 
         [HttpPost]
-        public ActionResult<PlatformCreateDto> CreatePlatform(PlatformCreateDto platformCreateDto)
+        public async Task<ActionResult<PlatformCreateDto>> CreatePlatform(PlatformCreateDto platformCreateDto)
         {
             var platformModel = _mapper.Map<Platform>(platformCreateDto);
             _repository.CreatePlatform(platformModel);
             _repository.SaveChanges();
 
             var PlatformReadDto = _mapper.Map<PlatformReadDto>(platformModel);
+
+            try 
+            {
+                await _commandDataClient.SendPlatformToCommand(PlatformReadDto);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"--> Could not send synchronously to Command Service: {ex.Message}");
+            }
 
             return CreatedAtAction(nameof(GetPlatformById), new { id = PlatformReadDto.Id }, PlatformReadDto);
         }
