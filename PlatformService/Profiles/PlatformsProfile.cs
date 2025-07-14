@@ -12,6 +12,7 @@ namespace PlatformService.Profiles
             //Convert Platform to PlatformReadDto
             CreateMap<Platform, PlatformReadDto>();
             CreateMap<PlatformCreateDto, Platform>();
+            CreateMap<PlatformReadDto, PlatformPublishedDto>();
         }
     }
 }
