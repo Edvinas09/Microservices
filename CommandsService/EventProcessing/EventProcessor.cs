@@ -46,15 +46,15 @@ namespace CommandsService.EventProcessing
             }
         }
 
-        private void AddPlatform(string plaformPublishMessage)
+        private void AddPlatform(string platformPublishMessage)
         {
-            // We cant user dependency injection in the construnctor for repo because
-            // is called from message bus which is static
+            // We cant use dependency injection in the constructor for repo because
+            // it is called from message bus which is static
             using (var scope = _scopeFactory.CreateAsyncScope())
             {
                 var repo = scope.ServiceProvider.GetRequiredService<ICommandRepo>();
 
-                var platformPublishedDto = JsonSerializer.Deserialize<PlatformPublishedDto>(plaformPublishMessage);
+                var platformPublishedDto = JsonSerializer.Deserialize<PlatformPublishedDto>(platformPublishMessage);
 
                 try
                 {
