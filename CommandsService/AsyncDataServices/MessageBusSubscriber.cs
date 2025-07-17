@@ -26,8 +26,8 @@ namespace CommandsService.AsyncDataServices
         {
             var bus = new ConnectionFactory()
             {
-                HostName = _configuration["RabbitMQ:Host"] ?? "localhost",
-                Port = int.Parse(_configuration["RabbitMQ:Port"] ?? "5672")
+                HostName = _configuration["RabbitMQHost"] ?? "rabbitmq-clusterip-srv",
+                Port = int.Parse(_configuration["RabbitMQPort"] ?? "5672")
             };
             _connection = await bus.CreateConnectionAsync();
             _channel = await _connection.CreateChannelAsync();

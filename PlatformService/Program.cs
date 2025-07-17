@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using PlatformService.AsyncDataServices;
 using PlatformService.Data;
+using PlatformService.Models;
+using PlatformService.SyncDataServices.Grpc;
 using PlatformService.SyncDataServices.Http;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +32,11 @@ builder.Services.AddScoped<IPlatformRepo, PlatformRepo>();
 builder.Services.AddSingleton<IMessageBusClient, MessageBusClient>();
 builder.Services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddGrpc();
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenLocalhost(5175, o => o.Protocols = HttpProtocols.Http2);
+});
 
 Console.WriteLine($"--> CommandService Endpoint {builder.Configuration["CommandService"]}");
 
@@ -42,5 +50,10 @@ if (app.Environment.IsDevelopment())
 
 //app.UseHttpsRedirection();
 app.MapControllers();
+app.MapGrpcService<GrpcPlatformService>();
+app.MapGet("/protos/platforms.proto", async context =>
+{
+    await context.Response.WriteAsync(System.IO.File.ReadAllText("Protos/platforms.proto"));
+});
 PrepDb.PrepPopulation(app, builder.Environment.IsProduction()); // Seed the database with initial data
 app.Run();
